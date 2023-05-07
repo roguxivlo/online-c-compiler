@@ -1,0 +1,273 @@
+<!-- Autor: Jan Roguwski -->
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+  <title>online-C-compiler</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'compiler/styles.css' %}">
+  <script src="{% static 'compiler/script.js' %}"></script>
+</head>
+
+<body class="light-mode">
+  <div class="grid-container">
+    <div class="topnav">
+      <div class="nav-option">Plik</div>
+      <div class="nav-option">Edycja</div>
+      <div class="nav-option">Opcje</div>
+      <div class="mode-button">
+        <button onclick="toggleStyle()">Zmiana Trybu</button>
+      </div>
+    </div>
+    <div class="sidebar">
+      Występuje
+      <ul>
+        <li>Tutaj</li>
+        <li> Drzewiasta
+          <ul>
+            <li>Struktura</li>
+            <li>Moich</li>
+            <li>Plików</li>
+          </ul>
+        </li>
+        <li>Drugi</li>
+        <li>Folder</li>
+      </ul>
+    </div>
+    <div class="main">
+      <pre>
+/* Some code I found <a href="https://cplusplus.com/forum/beginner/2870/">here</a> */
+#include &lt;iostream&gt;
+  using namespace std; void Store(){
+        
+        cout &lt;&lt; "The Item store is not finished yet\n" &lt;&lt; endl;
+        
+        int Mainmenu();
+        Mainmenu();
+        
+        }
+        
+  void Character(){
+        
+        int PlayerHp, PlayerStr, PlayerMana;
+        
+        cout &lt;&lt; "Your character has:\n\n";
+                  
+        cout &lt;&lt; PlayerHp &lt;&lt; " Health" &lt;&lt; endl;
+        cout &lt;&lt; PlayerStr &lt;&lt; " Strength" &lt;&lt; endl;
+        cout &lt;&lt; PlayerMana &lt;&lt; " Mana" &lt;&lt; endl;
+        
+        cout &lt;&lt; endl;
+        
+        int Mainmenu();
+        Mainmenu();
+        }
+        
+  void Inventory(){
+        
+        cout &lt;&lt; "Your inventory contains:\n" &lt;&lt; endl;
+        
+        int Mainmenu();
+        Mainmenu();
+  
+        }
+        
+  void Wilderness(){
+        
+        cout &lt;&lt; "You search the Jungle and find:\n" &lt;&lt; endl;
+        
+        string Creatures[10];
+        
+        Creatures[0] = "1";
+        Creatures[1] = "2";
+        Creatures[2] = "3";
+        Creatures[3] = "4";
+        
+        cout &lt;&lt; Creatures &lt;&lt; " Is really dangerous " &lt;&lt; endl;
+        
+        int Mainmenu();
+        Mainmenu();
+        }
+  
+  void Mainmenu(){
+        
+        string choice;
+        
+        cout &lt;&lt; "1: Attack creature" &lt;&lt; endl;
+        cout &lt;&lt; "2: Buy equipment" &lt;&lt; endl;
+        cout &lt;&lt; "3: Inventory" &lt;&lt; endl;
+        cout &lt;&lt; "4: Stats" &lt;&lt; endl;
+            
+            // invalid option returns to this
+            InvalidOption:
+                        
+        cin >> choice;
+        if (choice == "1"){
+                  Wilderness ();
+                  }
+        else if (choice == "2"){
+                        Store();
+                        }
+        else if (choice == "3"){
+                        Inventory();
+                        }
+        else if (choice == "4"){
+                        Character();
+                        }
+        else{
+            cout &lt;&lt; "You have not chosen a valid option" &lt;&lt; endl;
+            goto InvalidOption;
+        }
+                        
+  
+        
+        }
+  
+  int main()
+  {
+      int PlayerHp = 100, PlayerStr = 20, PlayerMana = 50;
+      Mainmenu ();
+  }
+      </pre>
+    </div>
+    <div class="code">
+      <pre>
+/* My CSS */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: black;
+}
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    'topnav topnav topnav'
+    'sidebar main code'
+    'sidebar tabs tabs';
+  gap: 1px;
+  grid-template-columns: 10% 60% 30%;
+  grid-template-rows: 5vh 75vh 20vh;
+}
+
+.grid-container > div {
+  background-color: seashell;
+}
+
+.topnav {
+  grid-area: topnav;
+}
+
+.sidebar {
+  grid-area: sidebar;
+}
+
+.main {
+  grid-area: main;
+}
+
+.code {
+  grid-area: code;
+}
+
+.tabs {
+  grid-area: tabs;
+}
+faaa
+aaa
+aaa
+aaa
+aaa
+dddddd
+dddddd
+ddddd
+dddd
+aaa
+aaa
+dddddd
+dddddd
+ddddd
+dddd
+aaa
+      </pre>
+    </div>
+    <div class="tabs">
+      <div class="tabs-menu">
+        <div class="tab">Tab1</div>
+        <div class="tab">Tab2</div>
+        <div class="tab">Tab3</div>
+        <div class="tab">Tab4</div>
+        <div class="tab">Tab5</div>
+        <div class="tab">Tab6</div>
+        <div class="tab">Tab7</div>
+        <div class="tab">Tab8</div>
+        <div class="tab">Tab9</div>
+        <div class="tab">Tab10</div>
+        <div class="tab">Tab11</div>
+        <div class="tab">Tab12</div>
+        <div class="tab">Tab13</div>
+        <div class="tab">Tab14</div>
+      </div>
+      <div class="tabs-text">
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+        Dane zależne od zakładki - w polu tym mają pojawiać się
+        wartości zależne od wybranej zakładki. Na przykład po wybraniu
+        zakładki sterującej wyborem procesora w tym miejscu powinna się
+        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

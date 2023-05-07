@@ -1,0 +1,170 @@
+/* Autor: Jan Roguwski */
+* {
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: auto;
+  color: var(--fontclr);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.light-mode {
+  --bdclr: black;
+  --topnavbgclr: #f0f8ff;
+  --sidebarbgclr: #fff5ee;
+  --mainbgclr: #fff5ee;
+  --codebgclr: #fff5ee;
+  --tabmenubgclr: #f0f8ff;
+  --tabtextbgclr: #fff5ee;
+  --tabbgclr: #7fffd4;
+  --texthoverclr: coral;
+  --fontclr: black;
+}
+
+.dark-mode {
+  --bdclr: grey;
+  --topnavbgclr: #2E4F4F;
+  --sidebarbgclr: #2C3333;
+  --mainbgclr: #2C3333;
+  --codebgclr: #2C3333;
+  --tabmenubgclr: #2E4F4F;
+  --tabtextbgclr: #2C3333;
+  --tabbgclr: #0E8388;
+  --texthoverclr: coral;
+  --fontclr: white;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    'topnav topnav topnav'
+    'sidebar main code'
+    'sidebar tabs tabs';
+  width: 100%;
+  height: 100%;
+  grid-template-columns: 10% 60% 30%;
+  grid-template-rows: 5vh 75vh 20vh;
+}
+
+.topnav {
+  grid-area: topnav;
+  border-bottom: 1px solid;
+  border-color: var(--bdclr);
+  background-color: var(--topnavbgclr);
+  display: flex;
+  align-items: center;
+}
+
+.nav-option {
+  padding-top: 0px;
+  padding-left: 0px;
+  padding-bottom: 0px;
+  padding-right: 10px;
+  min-width: fit-content;
+  font-size: 3vh;
+}
+
+.nav-option:hover {
+  color: var(--texthoverclr);
+}
+
+.sidebar {
+  grid-area: sidebar;
+  border-right: 1px solid;
+  border-color: var(--bdclr);
+  background-color: var(--sidebarbgclr);
+}
+
+.main {
+  grid-area: main;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  border-color: var(--bdclr);
+  background-color: var(--mainbgclr);
+  font-size: 2vh;
+}
+
+.code {
+  grid-area: code;
+  border-bottom: 1px solid;
+  border-color: var(--bdclr);
+  background-color: var(--codebgclr);
+  font-size: 2vh;
+}
+
+.tabs {
+  grid-area: tabs;
+}
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+.tabs-menu {
+  height: 25%;
+  border-bottom: 1px solid;
+  border-color: var(--bdclr);
+  background-color: var(--tabmenubgclr);
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  flex-direction: column;
+  overflow-x: auto;
+}
+
+.tabs-text {
+  height: 75%;
+  background-color: var(--tabtextbgclr);
+}
+
+.tab {
+  text-align: center;
+  height: 100%;
+  width: 10%;
+  border-right: 1px solid;
+  border-left: 1px solid;
+  border-color: var(--bdclr);
+  padding: 10px;
+  background-color: var(--tabbgclr);
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 2vh;
+}
+
+.tab:hover {
+  background-color: var(--texthoverclr);
+}
+
+ul {
+  margin: 0;
+  list-style-position:inside;
+  list-style-type: disc;
+}
+
+.mode-button {
+  justify-content: flex-end;
+}
+
+@media only screen and (max-width: 768px) {
+  .grid-container {
+    display: grid;
+    grid-template-areas:
+      'topnav topnav'
+      'main sidebar'
+      'main code'
+      'tabs tabs';
+    width: 100%;
+    height: 100%;
+    grid-template-columns: 60% 40%;
+    grid-template-rows: 5vh 30vh 40vh 25vh;
+  }
+
+  .sidebar {
+    border-bottom: 1px solid;
+    border-right: 0px;
+  }
+}
