@@ -24,9 +24,12 @@
       </div>
     </div>
     <div class="sidebar">
-      Występuje
+      Explorer:
       <ul>
-        <li>Tutaj</li>
+        {% for directory in directories %}
+        <li>{{ directory }}</li>
+        {% endfor %}
+        <!-- <li>Tutaj</li>
         <li> Drzewiasta
           <ul>
             <li>Struktura</li>
@@ -35,7 +38,7 @@
           </ul>
         </li>
         <li>Drugi</li>
-        <li>Folder</li>
+        <li>Folder</li> -->
       </ul>
     </div>
     <div class="main">
