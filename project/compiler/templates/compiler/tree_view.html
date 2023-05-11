@@ -1,0 +1,24 @@
+<li>
+  {{ directory.name }}
+  {% if directory.children %}
+  <ul>
+    {% for child in directory.children %}
+    {% with directory=child template_name="compiler/tree_view.html" %}
+    {% include template_name %}
+    {% endwith %}
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if directory.files %}
+  <!-- create form choosing file -->
+      <form method="post", enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for file in directory.files %}
+        <div>
+        <input type="radio" name="file_pk" value="{{ file.pk }}">{{ file.name }}</option>
+        </div>
+        {% endfor %}
+        <input type="submit" value="Wybierz plik">
+      </form>
+  {% endif %}
+</li>

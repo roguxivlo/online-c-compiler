@@ -30,28 +30,60 @@
       <div class="sidebar-header">Explorer</div>
       <ul>
         {% for directory in parent_dir_list %}
-        {% include "compiler/tree_view.html" %}
+        {% include "compiler/tree_view_no_form.html" %}
         {% endfor %}
       </ul>
       {% if free_files %}
-      <!-- create form choosing file -->
-      <form action="/compiler/" method="post">
-        {% csrf_token %}
+      
         {% for file in free_files %}
         <div>
-        <input type="radio" name="file_pk" value="{{ file.pk }}">{{ file.name }}</option>
+        -{{ file.name }}
         </div>
         {% endfor %}
-        <input type="submit" value="Wybierz plik">
-      </form>
+        
       {% endif %}
     </div>
     <div class="main">
-      <pre>
-        {% if source_code %}
-{{ source_code }}
-        {% endif %}
-      </pre>
+      {% if success %}
+      <p>Plik dodany!</p>
+      {% endif %}
+      {% if failure %}
+      <p>Błąd: {{ failure }}</p>
+      <p>Spróbuj jeszcze raz!</p>
+      {% endif %}
+      <form action="{% url 'compiler:file_upload' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" accept=".c">
+        <!-- choose directory owner: -->
+        <div>
+          <label for='owner_pk'>Właściciel:</label>
+          <select name="owner_pk" id="owner_pk">
+            {% for user in users %}
+            <option value="{{ user.pk }}">{{ user.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- choose parent directory: -->
+        <div>
+          <label for="parent_directory_pk">Wybierz lokalizację:</label>
+          <select name="parent_directory_pk" id="parent_directory_pk">
+            {% for directory in directories %}
+            <option value="{{ directory.pk }}">{{ directory.name }}</option>
+            {% endfor %}
+            <option value="">---</option>
+          </select>
+        </div>
+        <!-- Enter optional description, default is "" -->
+        <div>
+          <label for="file_description">Opis (opcjonalny):</label>
+          <input type="text" name="file_description" id="file_description" value="">
+        </div>
+        <input type="submit" value="Upload">
+      </form>
+      <div class="return">
+        <button><a href="{% url 'compiler:index' %}">Home</a></button>
+      </div>
     </div>
     <div class="code">
       <pre>

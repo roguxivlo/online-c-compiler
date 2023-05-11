@@ -35,7 +35,7 @@
       </ul>
       {% if free_files %}
       <!-- create form choosing file -->
-      <form action="/compiler/" method="post">
+      <form method="post", enctype="multipart/form-data">
         {% csrf_token %}
         {% for file in free_files %}
         <div>
@@ -51,7 +51,11 @@
         {% if source_code %}
 {{ source_code }}
         {% endif %}
+        
       </pre>
+      <div class="return">
+        <button><a href="{% url 'compiler:index' %}">Home</a></button>
+      </div>
     </div>
     <div class="code">
       <pre>

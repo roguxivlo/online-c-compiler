@@ -12,6 +12,4 @@ admin.site.register(SectionType)
 
 admin.site.register(SectionStatus)
 
-admin.site.register(SectionStatusData)
-
 admin.site.register(Section)

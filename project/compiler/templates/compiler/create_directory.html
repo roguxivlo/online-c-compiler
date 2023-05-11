@@ -30,28 +30,65 @@
       <div class="sidebar-header">Explorer</div>
       <ul>
         {% for directory in parent_dir_list %}
-        {% include "compiler/tree_view.html" %}
+        {% include "compiler/tree_view_no_form.html" %}
         {% endfor %}
       </ul>
       {% if free_files %}
-      <!-- create form choosing file -->
-      <form action="/compiler/" method="post">
-        {% csrf_token %}
+      
         {% for file in free_files %}
         <div>
-        <input type="radio" name="file_pk" value="{{ file.pk }}">{{ file.name }}</option>
+        -{{ file.name }}
         </div>
         {% endfor %}
-        <input type="submit" value="Wybierz plik">
-      </form>
+        
       {% endif %}
     </div>
     <div class="main">
-      <pre>
-        {% if source_code %}
-{{ source_code }}
-        {% endif %}
-      </pre>
+      {% if success %}
+      <p>Folder dodany!</p>
+    {% endif %}
+    {% if failure %}
+      <p>Błąd: {{ failure }}</p>
+      <p>Spróbuj jeszcze raz!</p>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <!-- choose directory owner: -->
+      <div>
+        <label for='owner_pk'>Choose directory owner:</label>
+        <select name="owner_pk" id="owner_pk">
+          {% for user in users %}
+          <option value="{{ user.pk }}">{{ user.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <!-- choose parent directory: -->
+      <div>
+        <label for="parent_directory_pk">Choose parent directory:</label>
+        <select name="parent_directory_pk" id="parent_directory_pk">
+          {% for directory in directories %}
+          <option value="{{ directory.pk }}">{{ directory.name }}</option>
+          {% endfor %}
+          <option value="">---</option>
+        </select>
+      </div>
+      <!-- enter folder name: -->
+      <div>
+        <label for="directory_name">Enter folder name:</label>
+        <input type="text" name="directory_name" id="directory_name">
+      </div>
+      <!-- Enter optional description, default is "" -->
+      <div>
+        <label for="directory_description">Enter folder description (optional):</label>
+        <input type="text" name="directory_description" id="directory_description" value="">
+      </div>
+      <div class="submit">
+        <button type="submit">Create</button>
+      </div>
+    </form>
+    <div class="return">
+      <button><a href="{% url 'compiler:index' %}">Home</a></button>
+    </div>
     </div>
     <div class="code">
       <pre>

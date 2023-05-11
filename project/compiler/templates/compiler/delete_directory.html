@@ -28,30 +28,31 @@
     </div>
     <div class="sidebar">
       <div class="sidebar-header">Explorer</div>
-      <ul>
+        
         {% for directory in parent_dir_list %}
-        {% include "compiler/tree_view.html" %}
+         <!-- create form choosing dir -->
+        <form method="post", enctype="multipart/form-data">
+          {% csrf_token %}
+        <li>
+        <input type="radio" name="dir_pk" value="{{ directory.pk }}">{{ directory.name }}</option>
+        </li>
+        <input type="submit" value="Wybierz folder">
+        </form>
+        {% include "compiler/tree_view_only_dirs.html" %}
         {% endfor %}
-      </ul>
-      {% if free_files %}
-      <!-- create form choosing file -->
-      <form action="/compiler/" method="post">
-        {% csrf_token %}
-        {% for file in free_files %}
-        <div>
-        <input type="radio" name="file_pk" value="{{ file.pk }}">{{ file.name }}</option>
-        </div>
-        {% endfor %}
-        <input type="submit" value="Wybierz plik">
-      </form>
-      {% endif %}
+        
+      
     </div>
     <div class="main">
-      <pre>
-        {% if source_code %}
-{{ source_code }}
+        {% if success %}
+        <div>{{success}}</div>
         {% endif %}
-      </pre>
+        {% if source_code %}
+        <div>{{ source_code }}</div>
+        {% endif %}
+      <div class="return">
+        <button><a href="{% url 'compiler:index' %}">Home</a></button>
+      </div>
     </div>
     <div class="code">
       <pre>

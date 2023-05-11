@@ -60,15 +60,33 @@ body {
 
 .nav-option {
   padding-top: 0px;
-  padding-left: 0px;
+  padding-left: 10px;
   padding-bottom: 0px;
   padding-right: 10px;
   min-width: fit-content;
   font-size: 3vh;
+  /* right border */
+  border-right: 1px solid;
 }
 
 .nav-option:hover {
   color: var(--texthoverclr);
+}
+
+a:link {
+  text-decoration: none;
+}
+
+a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--texthoverclr);
+}
+
+a:active {
+  text-decoration: underline;
 }
 
 .sidebar {
@@ -142,11 +160,13 @@ pre {
 ul {
   margin: 0;
   list-style-position:inside;
-  list-style-type: disc;
+  list-style-type: ">";
+  padding-left: 10px;
 }
 
 .mode-button {
   justify-content: flex-end;
+  padding-left: 10px;
 }
 
 @media only screen and (max-width: 768px) {
@@ -167,4 +187,9 @@ ul {
     border-bottom: 1px solid;
     border-right: 0px;
   }
+}
+
+.file {
+  /* display in separate line */
+  display: block;
 }
