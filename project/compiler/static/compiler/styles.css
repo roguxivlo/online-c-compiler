@@ -45,7 +45,7 @@ body {
     'sidebar tabs tabs';
   width: 100%;
   height: 100%;
-  grid-template-columns: 10% 60% 30%;
+  grid-template-columns: 10% 55% 35%;
   grid-template-rows: 5vh 75vh 20vh;
 }
 
@@ -123,23 +123,25 @@ pre {
 }
 
 .tabs-menu {
+  font-size: 0vh;
   height: 25%;
   border-bottom: 1px solid;
   border-color: var(--bdclr);
   background-color: var(--tabmenubgclr);
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  flex-direction: column;
-  overflow-x: auto;
+  gap: 0px;
+  /* flex-wrap: wrap;
+  flex-direction: column; */
+  /* overflow-x: auto; */
 }
 
 .tabs-text {
+  display: none;
   height: 75%;
   background-color: var(--tabtextbgclr);
 }
-
+/* 
 .tab {
+  float: left;
   text-align: center;
   height: 100%;
   width: 10%;
@@ -155,17 +157,12 @@ pre {
 
 .tab:hover {
   background-color: var(--texthoverclr);
-}
+} */
 
 ul {
   margin: 0;
   list-style-position:inside;
   list-style-type: ">";
-  padding-left: 10px;
-}
-
-.mode-button {
-  justify-content: flex-end;
   padding-left: 10px;
 }
 
@@ -192,4 +189,44 @@ ul {
 .file {
   /* display in separate line */
   display: block;
+}
+
+.tab_button {
+  background-color: transparent;
+  /* border: none; */
+  height: 100%;
+  width: 15%;
+  border-right: 1px solid;
+  border-left: none;
+  border-color: var(--bdclr);
+  border-bottom: none;
+  border-top: none;
+  font-size: 2vh;
+}
+
+.tab_button:hover {
+  background-color: var(--texthoverclr);
+}
+
+.tabs-menu button.active {
+  background-color: var(--texthoverclr);
+}
+
+.topnav button {
+  background-color: transparent;
+  /* border: none; */
+  height: 100%;
+  /* width: 15%; */
+  border-right: 1px solid;
+  border-left: none;
+  border-color: var(--bdclr);
+  border-bottom: none;
+  border-top: none;
+  font-size: 2vh;
+  justify-content: flex-end;
+  padding-left: 10px;
+}
+
+.topnav button:hover {
+  background-color: var(--texthoverclr);
 }

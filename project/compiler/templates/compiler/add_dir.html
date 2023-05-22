@@ -1,0 +1,51 @@
+{% if success %}
+<p>Folder dodany!</p>
+{% endif %}
+
+{% if failure %}
+<p>Błąd: {{ failure }}</p>
+<p>Spróbuj jeszcze raz!</p>
+{% endif %}
+
+<form action="{% url 'compiler:index' mode %}" method="post" enctype="multipart/form-data">
+  
+  {% csrf_token %}
+
+  <!-- choose directory owner: -->
+  <div>
+    <label for='owner_pk'>Choose directory owner:</label>
+    <select name="owner_pk" id="owner_pk">
+      <option value="{{ user.pk }}">{{ user.username }}</option>
+    </select>
+  </div>
+  
+  <!-- choose parent directory: -->
+  <div>
+    <label for="parent_directory_pk">Choose parent directory:</label>
+    <select name="parent_directory_pk" id="parent_directory_pk">
+      {% for directory in directories %}
+      <option value="{{ directory.pk }}">{{ directory.name }}</option>
+      {% endfor %}
+      <option value="">---</option>
+    </select>
+  </div>
+  
+  <!-- enter folder name: -->
+  <div>
+    <label for="directory_name">Enter folder name:</label>
+    <input type="text" name="directory_name" id="directory_name">
+  </div>
+  
+  <!-- Enter optional description, default is "" -->
+  <div>
+    <label for="directory_description">Enter folder description (optional):</label>
+    <input type="text" name="directory_description" id="directory_description" value="">
+  </div>
+  <div class="submit">
+    <button type="submit">Create</button>
+  </div>
+</form>
+
+<div class="return">
+  <button><a href="{% url 'compiler:index' %}">Home</a></button>
+</div>

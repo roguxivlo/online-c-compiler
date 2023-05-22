@@ -16,8 +16,9 @@
 <body class="light-mode">
   <div class="grid-container">
     <div class="topnav">
-      <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:file_upload' %}">Nowy Plik</a></div>
-      <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:create_directory' %}">Nowy Folder</a></div>
+      <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:index' 'add_file' %}">Nowy Plik</a></div>
+      <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:index' 'add_dir' %}">Nowy Folder</a></div>
+      <!-- Osobna realizacja usuwania. Ma być opcja wybrania pliku/folderu z menu po lewej. -->
       <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:file_delete' %}">Usuń Plik</a></div>
       <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:delete_directory' %}">Usuń Folder</a></div>
       <div class="nav-option">Edycja</div>

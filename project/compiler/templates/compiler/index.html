@@ -16,177 +16,178 @@
 <body class="light-mode">
   <div class="grid-container">
     <div class="topnav">
-      <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:file_upload' %}">Nowy Plik</a></div>
-      <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:create_directory' %}">Nowy Folder</a></div>
-      <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:file_delete' %}">Usuń Plik</a></div>
-      <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:delete_directory' %}">Usuń Folder</a></div>
+      <div class="nav-option">
+        <a id='topnav-link' href="{% url 'compiler:index' 'add_file' %}">
+          Nowy Plik
+        </a>
+      </div>
+      <div class="nav-option">
+        <a id='topnav-link' href="{% url 'compiler:index' 'add_dir' %}">
+          Nowy Folder
+        </a>
+      </div>
+      
+      
       <div class="nav-option">Edycja</div>
       <div class="nav-option">Opcje</div>
-      <div class="mode-button">
-        <button onclick="toggleStyle()">Zmiana Trybu</button>
-      </div>
+      <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:logout' %}">Wyloguj się</a></div>
+      <button onclick="toggleStyle()">Zmiana Trybu</button>
+
     </div>
     <div class="sidebar">
-      <div class="sidebar-header">Explorer</div>
+      <div class="sidebar-header">Witaj {{user.username}}!</div>
       <ul>
         {% for directory in parent_dir_list %}
         {% include "compiler/tree_view.html" %}
         {% endfor %}
       </ul>
       {% if free_files %}
-      <!-- create form choosing file -->
-      <form action="/compiler/" method="post">
-        {% csrf_token %}
+        <!-- Print all files with hyperlinks -->
         {% for file in free_files %}
-        <div>
-        <input type="radio" name="file_pk" value="{{ file.pk }}">{{ file.name }}</option>
-        </div>
+          <div class="file">
+            <a href="{% url 'compiler:index' 'show_file' file.pk %}">{{ file.name }}</a>
+            <a href="{% url 'compiler:delete_file' file.pk %}">Usuń</a>
+          </div>
         {% endfor %}
-        <input type="submit" value="Wybierz plik">
-      </form>
       {% endif %}
     </div>
     <div class="main">
-      <pre>
-        {% if source_code %}
+      {% if mode == 'show_file' %}
+        <pre>
+          {% if source_code %}
 {{ source_code }}
-        {% endif %}
-      </pre>
+          {% endif %}
+        </pre>
+      {% endif %}
+      
+      {% if mode == 'add_file' %}
+        {% include "compiler/add_file.html" %}
+      {% endif %}
+      
+      {% if mode == 'add_dir' %}
+        {% include "compiler/add_dir.html" %}
+      {% endif %}
+      
     </div>
     <div class="code">
-      <pre>
-/* My CSS */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  background-color: black;
-}
-.grid-container {
-  display: grid;
-  grid-template-areas:
-    'topnav topnav topnav'
-    'sidebar main code'
-    'sidebar tabs tabs';
-  gap: 1px;
-  grid-template-columns: 10% 60% 30%;
-  grid-template-rows: 5vh 75vh 20vh;
-}
-
-.grid-container > div {
-  background-color: seashell;
-}
-
-.topnav {
-  grid-area: topnav;
-}
-
-.sidebar {
-  grid-area: sidebar;
-}
-
-.main {
-  grid-area: main;
-}
-
-.code {
-  grid-area: code;
-}
-
-.tabs {
-  grid-area: tabs;
-}
-faaa
-aaa
-aaa
-aaa
-aaa
-dddddd
-dddddd
-ddddd
-dddd
-aaa
-aaa
-dddddd
-dddddd
-ddddd
-dddd
-aaa
-      </pre>
+      {% if result %}
+        <pre>
+{{ result }}
+        </pre>
+      {% endif %}
     </div>
     <div class="tabs">
       <div class="tabs-menu">
-        <div class="tab">Tab1</div>
-        <div class="tab">Tab2</div>
-        <div class="tab">Tab3</div>
-        <div class="tab">Tab4</div>
-        <div class="tab">Tab5</div>
-        <div class="tab">Tab6</div>
-        <div class="tab">Tab7</div>
-        <div class="tab">Tab8</div>
-        <div class="tab">Tab9</div>
-        <div class="tab">Tab10</div>
-        <div class="tab">Tab11</div>
-        <div class="tab">Tab12</div>
-        <div class="tab">Tab13</div>
-        <div class="tab">Tab14</div>
+        <button class="tab_button" onclick="openTab(event, 'STD')">STANDARD</button>
+        <button class="tab_button" onclick="openTab(event, 'OPT')">Optymalizacje</button>
+        <button class="tab_button" onclick="openTab(event, 'PROC')">Procesor</button>
+        <button class="tab_button" onclick="openTab(event, 'DEP')">Zależne</button>
       </div>
-      <div class="tabs-text">
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
-        Dane zależne od zakładki - w polu tym mają pojawiać się
-        wartości zależne od wybranej zakładki. Na przykład po wybraniu
-        zakładki sterującej wyborem procesora w tym miejscu powinna się
-        pojawić możliwość wybrania jakiegoś z dostępnych procesorów.
+      <div id="STD"class="tabs-text">
+        {% if STD %}
+          <p>
+            Aktualny standard: {{ STD }}
+          </p>
+        {% endif %}
+
+        <form method="POST">
+          {% csrf_token %}
+          <select name="STD">
+            <option value="c11">C11</option>
+            <option value="c99">C99</option>
+            <option value="c89">C89</option>
+          </select>
+          <input type="submit" value="Wybierz">
+        </form>
+      </div>
+      <div id="OPT"class="tabs-text">
+        {% if OPT %}
+          <p>
+            Wybrane optymalizacje: 
+            {% for opt in OPT %}
+              {{ opt }} 
+            {% endfor %}
+          </p>
+        {% endif %}
+        <form method="POST">
+          {% csrf_token %}
+          <input type="checkbox" name="OPT" value="--nogcse">--nogcse</input>
+          <input type="checkbox" name="OPT" value="--noinvariant">--noinvariant</input>
+          <input type="checkbox" name="OPT" value="--noinduction">--noinduction</input>
+          <input type="checkbox" name="OPT" value="--noinvariant">--noinvariant</input>
+          <input type="checkbox" name="OPT" value="--nojtbound">--nojtbound</input>
+          <input type="checkbox" name="OPT" value="--noloopreverse">--noloopreverse</input>
+          <input type="checkbox" name="OPT" value="none">brak</input>
+          <input type="submit" value="Wybierz">
+        </form>
+      </div>
+      <div id="PROC"class="tabs-text">
+        {% if PROC %}
+          <p>
+            Aktualny procesor: {{ PROC }}
+          </p>
+        {% endif %}
+
+        <form method="POST">
+          {% csrf_token %}
+          <select name="PROC">
+            <option value="MCS51">MCS51</option>
+            <option value="Z80">Z80</option>
+            <option value="STM8">STM8</option>
+          </select>
+          <input type="submit" value="Wybierz">
+        </form>
+      </div>
+      <div id="DEP"class="tabs-text">
+        {% if PROC %}
+          <p>
+            Wybrane zależności dla procesora {{ PROC }}: 
+            {% for dep in DEP %}
+              {{ dep }} 
+            {% endfor %}
+          </p>
+          <form method="POST">
+            {% csrf_token %}
+            {% if PROC == 'MCS51' %}
+              <input type="checkbox" name="DEP" value="--model-small">--model-small</input>
+              <input type="checkbox" name="DEP" value="--model-medium">--model-medium</input>
+              <input type="checkbox" name="DEP" value="--model-large">--model-large</input>
+              <input type="checkbox" name="DEP" value="--model-huge">--model-huge</input>
+            {% endif %}
+            {% if PROC == 'Z80' %}
+              <input type="checkbox" name="DEP" value="--no-std-crt0">--no-std-crt0</input>
+              <input type="checkbox" name="DEP" value="--callee-saves-bc">--callee-saves-bc</input>
+              <input type="checkbox" name="DEP" value="--reserve-regs-iy">--reserve-regs-iy</input>
+            {% endif %}
+            {% if PROC == 'STM8' %}
+              <input type="checkbox" name="DEP" value="--model-medium">--model-medium</input>
+              <input type="checkbox" name="DEP" value="--model-large">--model-large</input>
+            {% endif %}
+              <input type="checkbox" name="DEP" value="none">brak</input>
+            <input type="submit" value="Wybierz">
+          </form>
+        {% else %}
+          <p>
+            Wybierz procesor
+          </p>
+        {% endif %}
       </div>
     </div>
+    <script>
+      function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabs-text");
+        for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tab_button");
+        for (i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+      }
+    </script>
   </div>
 </body>
 </html>

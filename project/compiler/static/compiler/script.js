@@ -4,3 +4,4 @@ function toggleStyle() {
   element.classList.toggle("light-mode");
   element.classList.toggle("dark-mode");
 }
+

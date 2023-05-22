@@ -1,5 +1,8 @@
 <li>
-  {{ directory.name }}
+  <div class="directory">
+    {{ directory.name }}
+    <a href="{% url 'compiler:delete_directory' directory.pk %}">Usuń</a>
+  </div>
   {% if directory.children %}
   <ul>
     {% for child in directory.children %}
@@ -10,15 +13,12 @@
   </ul>
   {% endif %}
   {% if directory.files %}
-  <!-- create form choosing file -->
-      <form method="post", enctype="multipart/form-data">
-        {% csrf_token %}
-        {% for file in directory.files %}
-        <div>
-        <input type="radio" name="file_pk" value="{{ file.pk }}">{{ file.name }}</option>
-        </div>
-        {% endfor %}
-        <input type="submit" value="Wybierz plik">
-      </form>
+    <!-- Print all files with hyperlinks -->
+    {% for file in directory.files %}
+      <div>
+        <a href="{% url 'compiler:index' 'show_file' file.pk %}">{{ file.name }}</a>
+        <a href="{% url 'compiler:delete_file' file.pk %}">Usuń</a>
+      </div>
+    {% endfor %}
   {% endif %}
 </li>
