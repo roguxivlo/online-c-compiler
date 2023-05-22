@@ -367,12 +367,41 @@ def logout_view(request):
 def delete_file(request, file_pk):
     context = {'source_code': 'Usunięto plik'}
     user = request.user
+    
+
+    try:
+        file_to_delete = File.objects.filter(pk = file_pk, accesible = True, owner=user)
+    except File.DoesNotExist:
+        context['failure'] = 'Wybrany plik nie istnieje lub został usunięty'
+        return render(request, 'compiler/index.html', context)
+    
+    file_to_delete = file_to_delete[0]
+
+    file_to_delete.accesible = False
+    file_to_delete.deleted_date = datetime.now()
+    file_to_delete.save()
+    context = get_file_layout(user)
     context['user'] = user
+
+
     return render(request, 'compiler/index.html', context)
 
 @login_required
 def delete_directory(request, dir_pk):
     context = {'source_code': 'Usunięto folder'}
     user = request.user
+    
+
+    dir_to_delete = Directory.objects.get(pk=dir_pk, owner=user)
+    print(dir_to_delete.name)
+
+    # Recursively set all subdirectories and files to inaccessible:
+    clean(dir_to_delete)
+    
+
+    context = get_file_layout(user)
     context['user'] = user
+    context['success']='Usunięto folder'
+
+
     return render(request, 'compiler/index.html', context)

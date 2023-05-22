@@ -1,8 +1,6 @@
 <li>
-  <div class="directory">
     {{ directory.name }}
     <a href="{% url 'compiler:delete_directory' directory.pk %}">Usuń</a>
-  </div>
   {% if directory.children %}
   <ul>
     {% for child in directory.children %}
