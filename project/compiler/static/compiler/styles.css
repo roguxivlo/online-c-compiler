@@ -230,3 +230,19 @@ ul {
 .topnav button:hover {
   background-color: var(--texthoverclr);
 }
+
+.C_line {
+  color: black;
+}
+
+.C_line:hover {
+  background-color: #cbfdff;
+}
+
+.highlighted {
+  background-color: red;
+}
+
+.hidden {
+  display: none;
+}

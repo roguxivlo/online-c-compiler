@@ -1,0 +1,14 @@
+{% if fail %}
+  <p>
+    Błąd: {{ fail }}
+  </p>
+{% elif asmLines %}
+  {% for line in asmLines %}
+    <div class="amsLine" data-refCline="{{line.refCLine}}"
+    data-section="{{line.section}}" data-isParent="{{line.isParent}}"
+    onclick="highlightCCodeLine('{{line.refCLine}}' - 1, this)"
+    ondblclick="collapseASMSection('{{line.section}}', '{{line.isParent}}')">
+      <pre>{{ line.line }}</pre>
+    </div>
+  {% endfor %}
+{% endif %}

@@ -7,7 +7,7 @@
   <p>Spróbuj jeszcze raz!</p>
 {% endif %}
 
-<form action="{% url 'compiler:index' mode %}" method="post" enctype="multipart/form-data">
+<form action="{% url 'compiler:index' 'add_file' %}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <input type="file" name="file" accept=".c">
   
@@ -37,7 +37,3 @@
   </div>
   <input type="submit" value="Upload">
 </form>
-
-<div class="return">
-  <button><a href="{% url 'compiler:index' %}">Home</a></button>
-</div>

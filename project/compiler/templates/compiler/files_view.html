@@ -1,0 +1,15 @@
+<div class="sidebar-header">Witaj {{user.username}}!</div>
+  <ul>
+    {% for directory in parent_dir_list %}
+    {% include "compiler/tree_view.html" %}
+    {% endfor %}
+  </ul>
+  {% if free_files %}
+    <!-- Print all files with hyperlinks -->
+    {% for file in free_files %}
+      <div class="file" id="{{ file.pk }}">
+        <button onclick="showFile('{{file.pk}}')">{{file.name}}</button>
+        <button onclick="deleteFile('{{file.pk}}')">Usuń</button>
+      </div>
+    {% endfor %}
+  {% endif %}

@@ -11,36 +11,6 @@ class NamedEntity(models.Model):
     def __str__(self):
         return self.name
 
-# class CustomUserManager(BaseUserManager):
-#     def create_user(self, login, password=None):
-#         if not login:
-#             raise ValueError('The Login field must be set')
-#         user = self.model(login=login)
-#         user.set_password(password)
-#         user.save(using=self._db)
-#         return user
-
-#     def create_superuser(self, login, password):
-#         user = self.create_user(login, password=password)
-#         user.is_admin = True
-#         user.save(using=self._db)
-#         return user
-
-# class CustomUser(AbstractBaseUser):
-#     login = models.CharField(max_length=30, unique=True)
-#     # password = models.CharField(max_length=128)
-
-#     is_active = models.BooleanField(default=True)
-#     is_admin = models.BooleanField(default=False)
-
-#     objects = CustomUserManager()
-
-#     USERNAME_FIELD = 'login'
-#     REQUIRED_FIELDS = []
-
-#     def __str__(self):
-#         return self.login
-
 class Directory(NamedEntity):
     # optional
     description = models.CharField(max_length=200, blank=True)

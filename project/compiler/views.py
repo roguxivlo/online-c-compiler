@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.shortcuts import render, redirect
 from .models import *
@@ -8,11 +8,54 @@ import tempfile
 from django.contrib.auth import authenticate, login, logout
 from .forms import LoginForm
 from django.contrib.auth.decorators import login_required
+import os
+import json
+import re 
 
 def get_flags_string(flags):
     if 'none' not in flags:
         return " ".join(str(x) for x in flags)
     return ""
+
+class asmLine:
+    def __init__(self, line, refCLine, section, isParent) -> None:
+        self.line = line
+        self.refCLine = refCLine
+        self.section = section
+        self.isParent = isParent
+
+def process_asm(context, asm_code):
+    print('Processing asm code')
+    asm_lines = asm_code.split('\n')
+    context['asmLines'] = []
+    current_C_line = 0
+    current_section = 0
+    for line in asm_lines:
+        # check if line contains substring "/tmp/" and if it does,
+        # extract first integer after ':' sign in line:
+        if '/tmp/' in line:
+            match = re.search(r'(?<=:)\d+', line)
+            if match:
+                current_C_line = int(match.group())
+                # print(current_C_line)
+        # check if the preceeding line and the next line start with ;-
+        # if they do, then the current line is a parent line
+
+        preceeding_line = asm_lines[asm_lines.index(line) - 1]
+        next_line = asm_lines[asm_lines.index(line) + 1]
+        if preceeding_line.startswith(';-') and next_line.startswith(';-') and line.startswith(';'):
+            print('Parent line:')
+            print(line)
+            current_section = current_section + 1
+            context['asmLines'].append(asmLine(line, current_C_line, current_section, True))
+        else:
+            context['asmLines'].append(asmLine(line, current_C_line, current_section, False))
+        # if line.startswith(';-') and asm_lines[asm_lines.index(line) + 1].startswith(';-'):
+        #     print('Parent line')
+        #     current_section = current_section + 1
+        #     context['asmLines'].append(asmLine(line, current_C_line, current_section, True))
+        # else:
+        #     context['asmLines'].append(asmLine(line, current_C_line, current_section, False))
 
 
 def compile(context, request, file_pk):
@@ -24,7 +67,7 @@ def compile(context, request, file_pk):
             f.write(section.body + '\n')
     
     if 'STD' not in request.session or 'PROC' not in request.session:
-        context['result'] = "Nie wybrano standardu C lub procesora"
+        context['fail'] = "Nie wybrano standardu C lub procesora"
         return
     c_standard = request.session['STD']
     procesor = request.session['PROC']
@@ -60,14 +103,14 @@ def compile(context, request, file_pk):
         print("OK\n")
         # return result.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        context['result'] = e.output.decode('utf-8')
+        context['fail'] = e.output.decode('utf-8')
         return
     # Read and print the .asm file
     with open(temp_file.name[5:-2] + '.asm', 'r') as asm_file:
         asm_code = asm_file.read()
     # delete temp_file.name[5:-2] + '.asm' file
     subprocess.check_output(['rm', temp_file.name[5:-2] + '.asm'])
-    context['result'] = asm_code
+    process_asm(context, asm_code)
 
 class Dir:
     def __init__(self, name, children, files, pk):
@@ -98,21 +141,20 @@ def get_file_layout(user):
     return {"parent_dir_list": parent_dir_list, "free_files": free_files}
 
 def parse_file_to_sections(code, file: File):
-    lines = code.count('\n')
-    # Each line is a separate section:
-    for i in range(lines):
+    linesByNewLine = code.split('\n')
+    lines = []
+    for line in linesByNewLine:
+        if line != '':
+            lines.append(line)
+
+    # Each nonempty line is a separate section:
+    for i in range(len(lines)):
         section_type = SectionType.objects.get(name="other")
         section_status = SectionStatus.objects.get(name="default")
         section = Section(name="", description="", file=file, parent=None, begin=i,
                           end=i+1, section_type=section_type, status=section_status,
-                          status_data="", body=code.split('\n')[i])
+                          status_data="", body=lines[i])
         section.save()
-    # section_type = SectionType.objects.get(name="other")
-    # section_status = SectionStatus.objects.get(name="default")
-    # section = Section(name="", description="", file=file, parent=None, begin=0,
-    #                   end=lines, section_type=section_type, status=section_status,
-    #                   status_data="", body=code)
-    # section.save()
 
 def get_text_from_section(section: Section):
     s_type = section.section_type
@@ -129,8 +171,9 @@ def get_text_from_section(section: Section):
 mode: "show_file" or "add_file" or "add_dir"
 file_pk: pk of file to show
 """
-@login_required
 def index(request, mode='show_file', file_pk=None):
+    if not request.user.is_authenticated:
+        return redirect('/compiler/login')
     user = request.user
     
     context=get_file_layout(user)
@@ -168,22 +211,16 @@ def index(request, mode='show_file', file_pk=None):
         pass
 
     if (mode == 'add_file'):
-        directories = Directory.objects.filter(accesible=True)
+        directories = Directory.objects.filter(accesible=True, owner=user)
         # user = CustomUser.objects.all()
         
         context['directories'] = directories
 
-        if request.method == 'POST':
+        if request.method == 'POST' and 'file' in request.FILES:
             filename = request.FILES['file'].name
             print(filename)
             print(request.POST)
             owner_pk = request.POST.get('owner_pk')
-
-            # try:
-            #     owner = User.objects.get(pk=owner_pk)
-            # except User.DoesNotExist:
-            #     context['failure'] = 'Właściciel nie istnieje'
-            #     return render(request, 'compiler/index.html', context)
             
             directory_pk = request.POST.get('parent_directory_pk')
             if directory_pk == "":
@@ -201,7 +238,7 @@ def index(request, mode='show_file', file_pk=None):
                 return render(request, 'compiler/index.html', context)
             
             # check if file already exists in directory:
-            if (File.objects.filter(directory=directory, name=filename, accesible=True).exists()):
+            if (File.objects.filter(directory=directory, name=filename, accesible=True, owner=user).exists()):
                 context['failure'] = 'Plik o podanej nazwie już istnieje w tym folderze'
                 return render(request, 'compiler/index.html', context)
             
@@ -279,34 +316,41 @@ def index(request, mode='show_file', file_pk=None):
         context["source_code"] = source_code
         
     return render(request, 'compiler/index.html', context)
-    
-# @login_required
-# def file_delete(request):
-#     user = request.user
-#     context = get_file_layout(user)
-#     context['source_code'] = 'Wybierz plik do usunięcia po lewej'
-#     if request.method == 'POST':
-#         print(request.POST)
-#         file_to_delete_pk = request.POST.get('file_pk')
-        
-#         if (file_to_delete_pk == None):
-#             return render(request, 'compiler/file_delete.html', context)
-        
-#         try:
-#             file_to_delete = File.objects.filter(pk = file_to_delete_pk, accesible = True)
-#         except File.DoesNotExist:
-#             context['failure'] = 'Wybrany plik nie istnieje lub został usunięty'
-#             return render(request, 'compiler/file_delete.html', context)
-        
-#         file_to_delete = file_to_delete[0]
 
-#         file_to_delete.accesible = False
-#         file_to_delete.deleted_date = datetime.now()
-#         file_to_delete.save()
-#         context = get_file_layout(user)
-#         return render(request, 'compiler/file_delete.html', context)
-#     else:
-#         return render(request, 'compiler/file_delete.html', context)
+def show_file(request, file_pk):
+    print('show_file')
+    context = {}
+    sections = []
+
+    file_to_display = File.objects.get(pk=file_pk)
+    if (file_to_display):
+        sections = Section.objects.filter(file=file_to_display).order_by('begin')
+    
+    context['sections'] = sections
+    return render(request, 'compiler/show_file.html', context)
+
+def compile_file(request, file_pk):
+    context = {}
+    # get session variables and save them to context:
+    try:
+        context['STD'] = request.session['STD']
+    except:
+        pass
+    try:
+        context['OPT'] = request.session['OPT']
+    except:
+        pass
+    try:
+        context['PROC'] = request.session['PROC']
+    except:
+        pass
+    try:
+        context['DEP'] = request.session['DEP']
+    except:
+        pass
+
+    compile(context, request, file_pk)
+    return render(request, "compiler/show_asm.html", context)
 
 def clean(dir:Directory):
     files=File.objects.filter(directory=dir)
@@ -323,29 +367,18 @@ def clean(dir:Directory):
     dir.deleted_date=datetime.now()
     dir.save()
 
-# @login_required
-# def delete_directory(request):
-#     user = request.user
-#     context = get_file_layout(user)
-#     context['source_code'] = 'Wybierz folder do usunięcia po lewej'
-#     if request.method == 'POST':
-#         dir_pk = request.POST.get('dir_pk')
-#         dir_to_delete = Directory.objects.get(pk=dir_pk)
-#         print(dir_to_delete.name)
-#         # Recursively set all subdirectories and files to inaccessible:
-#         clean(dir_to_delete)
-#         context['success']='Usunięto folder'
-#         return render(request, 'compiler/delete_directory.html', context)
-#     else:
-#         return render(request, 'compiler/delete_directory.html', context)
-
-
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
+            if username == "":
+                form.add_error(None, 'This field is required')
+                return render(request, 'compiler/login.html', {'form': form})
+            if password == "":
+                form.add_error(None, 'This field is required')
+                return render(request, 'compiler/login.html', {'form': form})
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
@@ -361,7 +394,6 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/compiler/login')
-
 
 @login_required
 def delete_file(request, file_pk):
@@ -405,3 +437,25 @@ def delete_directory(request, dir_pk):
 
 
     return render(request, 'compiler/index.html', context)
+
+def generate_file_tree_html(request):
+    user = request.user
+    context = get_file_layout(user)
+    context['user'] = user
+    return render(request, 'compiler/files_view.html', context)
+
+def generate_file_form_html(request):
+    context = {}
+    user = request.user
+    context['user'] = user
+    directories = Directory.objects.filter(accesible=True, owner=user)
+    context['directories'] = directories
+    return render(request, 'compiler/add_file.html', context)
+
+def generate_directory_form_html(request):
+    context = {}
+    user = request.user
+    context['user'] = user
+    directories = Directory.objects.filter(accesible=True, owner=user)
+    context['directories'] = directories
+    return render(request, 'compiler/add_directory.html', context)

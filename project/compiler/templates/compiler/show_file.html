@@ -1,0 +1,5 @@
+{% if sections %}
+  {% for section in sections %}
+    <pre class="C_line" id="l{{section.begin}}" >{{ section.body }}</pre>
+  {% endfor %}
+{% endif %}

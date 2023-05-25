@@ -16,25 +16,21 @@
 <body class="light-mode">
   <div class="grid-container">
     <div class="topnav">
-      <div class="nav-option">
-        <a id='topnav-link' href="{% url 'compiler:index' 'add_file' %}">
+      <div class="nav-option" onclick="addFile()">
           Nowy Plik
-        </a>
       </div>
-      <div class="nav-option">
-        <a id='topnav-link' href="{% url 'compiler:index' 'add_dir' %}">
-          Nowy Folder
-        </a>
+      <div class="nav-option" onclick="addDirectory()">
+        Nowy Folder
       </div>
       
       
-      <div class="nav-option">Edycja</div>
+      <div class="nav-option">Kompiluj</div>
       <div class="nav-option">Opcje</div>
       <div class="nav-option"><a id='topnav-link' href="{% url 'compiler:logout' %}">Wyloguj się</a></div>
       <button onclick="toggleStyle()">Zmiana Trybu</button>
 
     </div>
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <div class="sidebar-header">Witaj {{user.username}}!</div>
       <ul>
         {% for directory in parent_dir_list %}
@@ -44,14 +40,14 @@
       {% if free_files %}
         <!-- Print all files with hyperlinks -->
         {% for file in free_files %}
-          <div class="file">
-            <a href="{% url 'compiler:index' 'show_file' file.pk %}">{{ file.name }}</a>
-            <a href="{% url 'compiler:delete_file' file.pk %}">Usuń</a>
+          <div class="file" id="{{ file.pk }}">
+            <button onclick="showFile('{{file.pk}}')">{{file.name}}</button>
+            <button onclick="deleteFile('{{file.pk}}')">Usuń</button>
           </div>
         {% endfor %}
       {% endif %}
     </div>
-    <div class="main">
+    <div class="main" id='main'>
       {% if mode == 'show_file' %}
         <pre>
           {% if source_code %}
@@ -65,11 +61,11 @@
       {% endif %}
       
       {% if mode == 'add_dir' %}
-        {% include "compiler/add_dir.html" %}
+        {% include "compiler/add_directory.html" %}
       {% endif %}
       
     </div>
-    <div class="code">
+    <div class="code" id="code">
       {% if result %}
         <pre>
 {{ result }}
@@ -173,21 +169,7 @@
         {% endif %}
       </div>
     </div>
-    <script>
-      function openTab(evt, tabName) {
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tabs-text");
-        for (i = 0; i < tabcontent.length; i++) {
-          tabcontent[i].style.display = "none";
-        }
-        tablinks = document.getElementsByClassName("tab_button");
-        for (i = 0; i < tablinks.length; i++) {
-          tablinks[i].className = tablinks[i].className.replace(" active", "");
-        }
-        document.getElementById(tabName).style.display = "block";
-        evt.currentTarget.className += " active";
-      }
-    </script>
+    
   </div>
 </body>
 </html>

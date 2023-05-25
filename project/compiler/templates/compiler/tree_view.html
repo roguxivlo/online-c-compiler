@@ -1,6 +1,6 @@
 <li>
     {{ directory.name }}
-    <a href="{% url 'compiler:delete_directory' directory.pk %}">Usuń</a>
+    <button onclick="deleteDirectory('{{directory.pk}}')">Usuń</button>
   {% if directory.children %}
   <ul>
     {% for child in directory.children %}
@@ -13,9 +13,9 @@
   {% if directory.files %}
     <!-- Print all files with hyperlinks -->
     {% for file in directory.files %}
-      <div>
-        <a href="{% url 'compiler:index' 'show_file' file.pk %}">{{ file.name }}</a>
-        <a href="{% url 'compiler:delete_file' file.pk %}">Usuń</a>
+      <div class="file" id="{{ file.pk }}">
+        <button onclick="showFile('{{file.pk}}')">{{file.name}}</button>
+        <button onclick="deleteFile('{{file.pk}}')">Usuń</button>
       </div>
     {% endfor %}
   {% endif %}
