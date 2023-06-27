@@ -1,9 +1,21 @@
-<h2>Login</h2>
-{% if logged_out %}
-    <p> Wylogowano </p>
-{% endif %}
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-</form>
+<!DOCTYPE html>
+{% load static %}
+<head>
+    <link rel="stylesheet" href="{% static 'compiler/styles.css' %}">
+</head>
+<html lang="en">
+    <div class="login">
+        {% if logged_out %}
+        <p> Wylogowano </p>
+    {% endif %}
+    <div class="form">
+        <form method="post" class="login_form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    </div>
+
+</html>
+

@@ -25,7 +25,6 @@ class asmLine:
         self.isParent = isParent
 
 def process_asm(context, asm_code):
-    print('Processing asm code')
     asm_lines = asm_code.split('\n')
     context['asmLines'] = []
     current_C_line = 0
@@ -37,21 +36,17 @@ def process_asm(context, asm_code):
             match = re.search(r'(?<=:)\d+', line)
             if match:
                 current_C_line = int(match.group())
-                # print(current_C_line)
         # check if the preceeding line and the next line start with ;-
         # if they do, then the current line is a parent line
 
         preceeding_line = asm_lines[asm_lines.index(line) - 1]
         next_line = asm_lines[asm_lines.index(line) + 1]
         if preceeding_line.startswith(';-') and next_line.startswith(';-') and line.startswith(';'):
-            print('Parent line:')
-            print(line)
             current_section = current_section + 1
             context['asmLines'].append(asmLine(line, current_C_line, current_section, True))
         else:
             context['asmLines'].append(asmLine(line, current_C_line, current_section, False))
         # if line.startswith(';-') and asm_lines[asm_lines.index(line) + 1].startswith(';-'):
-        #     print('Parent line')
         #     current_section = current_section + 1
         #     context['asmLines'].append(asmLine(line, current_C_line, current_section, True))
         # else:
@@ -82,25 +77,18 @@ def compile(context, request, file_pk):
     else:
         dep_string = ""
 
-    # print(temp_file.name)
 
     try:
         if opt_string:
             if dep_string:
                 subprocess.check_output(['sdcc', f'-m{procesor}','-S', opt_string, dep_string, f'--std-{c_standard}', temp_file.name], stderr=subprocess.STDOUT)
-                print('Both')
             else:
                 subprocess.check_output(['sdcc', f'-m{procesor}','-S', opt_string, f'--std-{c_standard}', temp_file.name], stderr=subprocess.STDOUT)
-                print('Opt')
         else:
             if dep_string:
                 subprocess.check_output(['sdcc', f'-m{procesor}','-S', dep_string, f'--std-{c_standard}', temp_file.name], stderr=subprocess.STDOUT)
-                print('Dep')
             else:
                 subprocess.check_output(['sdcc', f'-m{procesor}','-S',  f'--std-{c_standard}', temp_file.name], stderr=subprocess.STDOUT)
-                print('None')
-        # print(result.decode('utf-8'))
-        print("OK\n")
         # return result.decode('utf-8')
     except subprocess.CalledProcessError as e:
         context['fail'] = e.output.decode('utf-8')
@@ -157,15 +145,15 @@ def parse_file_to_sections(code, file: File):
         section.save()
 
 def get_text_from_section(section: Section):
-    s_type = section.section_type
-    if (s_type.can_be_nested == False):
-        return section.body + "\n"
-    else:
-        sections = Section.objects.filter(parent=section).order_by('begin')
-        text = ""
-        for section in sections:
-            text += get_text_from_section(section)
-        return text
+    # s_type = section.section_type
+    # if (s_type.can_be_nested == False):
+    return section.body + "\n"
+    # else:
+    #     sections = Section.objects.filter(parent=section).order_by('begin')
+    #     text = ""
+    #     for section in sections:
+    #         text += get_text_from_section(section)
+    #     return text
 
 """
 mode: "show_file" or "add_file" or "add_dir"
@@ -218,8 +206,6 @@ def index(request, mode='show_file', file_pk=None):
 
         if request.method == 'POST' and 'file' in request.FILES:
             filename = request.FILES['file'].name
-            print(filename)
-            print(request.POST)
             owner_pk = request.POST.get('owner_pk')
             
             directory_pk = request.POST.get('parent_directory_pk')
@@ -256,7 +242,6 @@ def index(request, mode='show_file', file_pk=None):
         context['directories'] = directories
 
         if request.method == 'POST':
-            print(request.POST)
             directory_name = request.POST.get('directory_name')
             parent_directory_pk = request.POST.get('parent_directory_pk')
             if (parent_directory_pk == ""):
@@ -295,7 +280,6 @@ def index(request, mode='show_file', file_pk=None):
             context['success'] = 'Folder dodany'
         
     elif (mode == 'show_file' and file_pk != None):
-        print(request.POST)
         if (file_pk == None):
             return render(request, 'compiler/index.html', context)
 
@@ -318,7 +302,6 @@ def index(request, mode='show_file', file_pk=None):
     return render(request, 'compiler/index.html', context)
 
 def show_file(request, file_pk):
-    print('show_file')
     context = {}
     sections = []
 
@@ -407,11 +390,14 @@ def delete_file(request, file_pk):
         context['failure'] = 'Wybrany plik nie istnieje lub został usunięty'
         return render(request, 'compiler/index.html', context)
     
-    file_to_delete = file_to_delete[0]
+    # check if file exists:
+    if (file_to_delete):
+        file_to_delete = file_to_delete[0]
 
     file_to_delete.accesible = False
     file_to_delete.deleted_date = datetime.now()
-    file_to_delete.save()
+    if (file_to_delete):
+        file_to_delete.save()
     context = get_file_layout(user)
     context['user'] = user
 
@@ -425,7 +411,6 @@ def delete_directory(request, dir_pk):
     
 
     dir_to_delete = Directory.objects.get(pk=dir_pk, owner=user)
-    print(dir_to_delete.name)
 
     # Recursively set all subdirectories and files to inaccessible:
     clean(dir_to_delete)

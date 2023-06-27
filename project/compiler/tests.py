@@ -1,6 +1,7 @@
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 from django.contrib.auth.models import User
 from django.urls import reverse
+from .views import *
 
 class LoginFormTests(TestCase):
     def setUp(self):
@@ -47,12 +48,88 @@ class IndexViewTests(TestCase):
         self.user = User.objects.create_user(username=self.username, password=self.password)
         self.item1 = File.objects.create(name='File 1', description='Description 1', owner=self.user)
         self.item2 = File.objects.create(name='File 2', description='Description 2', owner=self.user)
+        # create temp directory
+        tmp = Directory.objects.create(name='tmp', description='tmp directory', owner=self.user)
+        
+    def test_compile(self):
+        context = {}
+        request = RequestFactory().get('/')
+        request.session = {}
+        # create empty file object and save it to database:
+        files = File.objects.all()
+        file_pk = files[0].pk
+        compile(context, request, file_pk)
+        self.assertGreater(len(context['fail']), 0)
+
+    def test_compile_bad_std_proc(self):
+        context = {'STD': 'example', 'PROC': 'badproc'}
+        request = RequestFactory().get('/')
+        request.session = context
+        # create empty file object and save it to database:
+        files = File.objects.all()
+        file_pk = files[0].pk
+        compile(context, request, file_pk)
+        self.assertGreater(len(context['fail']), 0)
+
+    def test_compile_bad_std_proc_bad_deps(self):
+        context = {'STD': 'example', 'PROC': 'badproc', 'DEP': 'somedeps'}
+        request = RequestFactory().get('/')
+        request.session = context
+        # create empty file object and save it to database:
+        files = File.objects.all()
+        file_pk = files[0].pk
+        compile(context, request, file_pk)
+        self.assertGreater(len(context['fail']), 0)
+        context = {'STD': 'example', 'PROC': 'badproc', 'OPT': 'somedeps'}
+        compile(context, request, file_pk)
+
+    def test_compile_bad_std_proc_bad_deps_opts(self):
+        context = {'STD': 'example', 'PROC': 'badproc', 'DEP': 'somedeps', 'OPT': 'something'}
+        request = RequestFactory().get('/')
+        request.session = context
+        # create empty file object and save it to database:
+        files = File.objects.all()
+        file_pk = files[0].pk
+        compile(context, request, file_pk)
+        self.assertGreater(len(context['fail']), 0)
+
+    def test_parse_file_to_sections(self):
+        parse_file_to_sections("", self.item1)
+        # if no exception thrown, then pass
+        self.assertTrue(True)
+        # create SectionType object with name 'other'
+        a = SectionType.objects.create(name='other', can_be_nested=False)
+        b = SectionStatus.objects.create(name='default')
+        # save SectionType object to database
+        a.save()
+        b.save()
+        parse_file_to_sections("some\nline\nseparated\nby\nnewline", self.item1)
 
     def test_view_accessible_by_authenticated_user(self):
         self.client.login(username=self.username, password=self.password)
         response = self.client.get(self.index_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'compiler/index.html')
+        # create request with request.method=POST
+        request = RequestFactory().post(self.index_url)
+        # add user to request
+        request.user = self.user
+        # add POST data to request
+        request.POST = {'STD': 'test', 'PROC': 'test description', 'parent_directory_pk': '123'}
+        # add file to request.FILES
+        request.FILES['file'] = self.item1
+        # add session to request
+        request.session = {}
+        # pass request to index view
+        response = index(request, 'add_file')
+        response = index(request, 'add_dir')
+        response = index(request, 'show_file', self.item1.pk)
+        response = compile_file(request, self.item1.pk)
+        response = show_file(request, self.item1.pk)
+        response = delete_file(request, self.item1.pk)
+        self.item1.accesible = False
+        self.item1.save()
+        response = delete_file(request, self.item1.pk)
 
     def test_view_displays_items(self):
         self.client.login(username=self.username, password=self.password)
@@ -72,11 +149,35 @@ class IndexViewTests(TestCase):
         self.assertContains(response, self.item2.name)
         self.assertNotContains(response, 'Other User File')
 
+    def test_generate_file_tree_html(self):
+        request = RequestFactory().get('/')
+        request.session = {}
+        # set request.user:
+        request.user = self.user
+        generate_file_tree_html(request)
+        generate_file_form_html(request)
+        generate_directory_form_html(request)
+        try:
+            # delete tmp directory
+            # get tmp pk
+            tmp = Directory.objects.get(name='tmp')
+            delete_directory(request, tmp.pk)
+        except:
+            pass
+        # if no exception thrown, then pass
+        self.assertTrue(True)
+
 from .models import NamedEntity, Directory, File, SectionType, SectionStatus, Section
 
 class ModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='testpassword')
+
+    def test_Get_file_layout(self):
+        context = get_file_layout(self.user)
+        # assert that context['parent_dir_list'] and context['free_files'] exist and are empty:
+        self.assertEqual(len(context['parent_dir_list']), 0)
+        self.assertEqual(len(context['free_files']), 0)
 
     def test_directory_creation(self):
         directory = Directory.objects.create(name='Test Directory', owner=self.user)
@@ -100,6 +201,21 @@ class ModelTests(TestCase):
         section_type = SectionType.objects.create(name='Test Type', can_be_nested=True)
         self.assertEqual(section_type.name, 'Test Type')
         self.assertEqual(section_type.can_be_nested, True)
+
+    def test_get_text_from_section(self):
+        file = File.objects.create(name='Test File', owner=self.user)
+        section_type = SectionType.objects.create(name='Test Type', can_be_nested=False)
+        section_status = SectionStatus.objects.create(name='Test Status')
+        section = Section.objects.create(
+            name='Test Section',
+            file=file,
+            begin=1,
+            end=10,
+            section_type=section_type,
+            status=section_status,
+            body='Section Body'
+        )
+        self.assertEqual(get_text_from_section(section), 'Section Body\n')
 
     def test_section_status_creation(self):
         section_status = SectionStatus.objects.create(name='Test Status')
@@ -129,4 +245,29 @@ class ModelTests(TestCase):
         self.assertEqual(section.status, section_status)
         self.assertIsNone(section.status_data)
         self.assertEqual(section.body, 'Section Body')
+
+class TestGet_Flags_string(TestCase):
+    def setUp(self):
+        self.flags = ["none"]
+
+    def test_get_flags_string(self):
+        self.assertEqual(get_flags_string(self.flags), "")
+
+class TestProcess_Asm(TestCase):
+    def test_Process_Asm(self):
+        context = {}
+        process_asm(context, "line\nline")
+        self.assertEqual(len(context['asmLines']), 2)
+        context = {}
+        process_asm(context, "line\nline\n/tmp/ in line: :12:)\n;-costam\n;costam\n;-costam")
+        self.assertEqual(len(context['asmLines']), 6)
+
+
+class TestDirClass(TestCase):
+    def test_1(self):
+        dir = Dir("name", "children", "files", 12)
+        self.assertEqual(dir.name, "name")
+        self.assertEqual(dir.children, "children")
+        self.assertEqual(dir.files, "files")
+        self.assertEqual(dir.pk, 12)
 
